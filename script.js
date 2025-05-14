@@ -5,12 +5,18 @@ async function fetchRandomQuote() {
         document.getElementById("quote").innerText = "Chargement...";
         console.log("Tentative de connexion à l'API ZenQuotes...");
         
-        // Test de connexion simple
-        const response = await fetch("https://zenquotes.io/api/random");
+        // Test de connexion avec mode CORS
+        const response = await fetch("https://zenquotes.io/api/random", {
+            method: 'GET',
+            mode: 'cors',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
         console.log("Statut de la réponse:", response.status);
 
         if (!response.ok) {
-            throw new Error(`Erreur de connexion: ${response.status}`);
+            throw new Error(`Erreur de connexion: ${response.status} - ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -29,7 +35,11 @@ async function fetchRandomQuote() {
 
     } catch (error) {
         console.error("Erreur complète:", error);
-        document.getElementById("quote").innerText = "Erreur de connexion à l'API. Veuillez réessayer.";
+        // Message d'erreur plus détaillé
+        const errorMessage = error.message.includes('CORS') 
+            ? "Erreur CORS: L'API n'est pas accessible depuis ce domaine. Veuillez réessayer plus tard."
+            : "Erreur de connexion à l'API. Veuillez réessayer.";
+        document.getElementById("quote").innerText = errorMessage;
     }
 }
 

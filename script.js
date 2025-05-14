@@ -3,15 +3,12 @@ async function fetchRandomQuote() {
     try {
         // Show loading state
         document.getElementById("quote").innerText = "Chargement...";
-        console.log("Tentative de connexion à l'API ZenQuotes...");
+        console.log("Tentative de connexion à l'API Type.fit...");
         
         // Test de connexion avec mode CORS
-        const response = await fetch("https://zenquotes.io/api/random", {
+        const response = await fetch("https://type.fit/api/quotes", {
             method: 'GET',
-            mode: 'cors',
-            headers: {
-                'Accept': 'application/json'
-            }
+            mode: 'cors'
         });
         console.log("Statut de la réponse:", response.status);
 
@@ -20,16 +17,20 @@ async function fetchRandomQuote() {
         }
 
         const data = await response.json();
-        console.log("Données reçues:", data);
+        console.log("Données reçues");
+
+        // Sélectionner une citation aléatoire
+        const randomIndex = Math.floor(Math.random() * data.length);
+        const quote = data[randomIndex];
 
         // Vérification des données
-        if (!data || !data[0] || !data[0].q) {
+        if (!quote || !quote.text) {
             throw new Error("Données invalides reçues de l'API");
         }
 
         // Affichage de la citation
-        const quoteText = `"${data[0].q}"`;
-        const authorText = data[0].a ? ` — ${data[0].a}` : "";
+        const quoteText = `"${quote.text}"`;
+        const authorText = quote.author ? ` — ${quote.author}` : "";
         document.getElementById("quote").innerText = quoteText + authorText;
         console.log("Citation affichée avec succès");
 

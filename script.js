@@ -1,51 +1,47 @@
-// Function to fetch and display a random quote
-async function fetchRandomQuote() {
+// Sélectionne l'élément où la citation sera affichée
+const quoteElement = document.getElementById('quote');
+// Sélectionne le bouton pour obtenir une nouvelle citation
+const newQuoteButton = document.getElementById('btn');
+
+// URL de l'API de citations (ZenQuotes)
+const api_url = "https://zenquotes.io/api/random";
+
+// Fonction asynchrone pour récupérer une citation aléatoire depuis l'API
+async function fetchRandomQuote(url) {
     try {
-        // Show loading state
-        document.getElementById("quote").innerText = "Chargement...";
-        console.log("Tentative de connexion à l'API Type.fit...");
-        
-        // Test de connexion avec mode CORS
-        const response = await fetch("https://type.fit/api/quotes", {
-            method: 'GET',
-            mode: 'cors'
-        });
-        console.log("Statut de la réponse:", response.status);
+        // Récupère les données de l'API
+        const response = await fetch(url);
 
+        // Vérifie si la requête a réussi (statut HTTP 200-299)
         if (!response.ok) {
-            throw new Error(`Erreur de connexion: ${response.status} - ${response.statusText}`);
+            // Lance une erreur si la réponse n'est pas OK
+            throw new Error(`Erreur HTTP: ${response.status}`);
         }
 
+        // Parse la réponse JSON
         const data = await response.json();
-        console.log("Données reçues");
 
-        // Sélectionner une citation aléatoire
-        const randomIndex = Math.floor(Math.random() * data.length);
-        const quote = data[randomIndex];
+        // L'API ZenQuotes renvoie un tableau, on prend le premier élément
+        const quoteData = data[0];
 
-        // Vérification des données
-        if (!quote || !quote.text) {
-            throw new Error("Données invalides reçues de l'API");
-        }
-
-        // Affichage de la citation
-        const quoteText = `"${quote.text}"`;
-        const authorText = quote.author ? ` — ${quote.author}` : "";
-        document.getElementById("quote").innerText = quoteText + authorText;
-        console.log("Citation affichée avec succès");
+        // Affiche la citation et l'auteur dans l'élément HTML
+        quoteElement.innerHTML = `<p>${quoteData.q}</p><span>- ${quoteData.a}</span>`;
 
     } catch (error) {
-        console.error("Erreur complète:", error);
-        // Message d'erreur plus détaillé
-        const errorMessage = error.message.includes('CORS') 
-            ? "Erreur CORS: L'API n'est pas accessible depuis ce domaine. Veuillez réessayer plus tard."
-            : "Erreur de connexion à l'API. Veuillez réessayer.";
-        document.getElementById("quote").innerText = errorMessage;
+        // Capture et gère les erreurs (ex: réseau, API inaccessible, CORS)
+        console.error('Erreur lors de la récupération de la citation:', error);
+        // Affiche un message d'erreur convivial à l'utilisateur
+        quoteElement.innerHTML = `<p>Impossible de charger la citation pour le moment.</p><p>Détails de l'erreur : ${error.message}</p>`;
     }
 }
 
-// Add click event listener to the button
-document.getElementById("btn").addEventListener("click", fetchRandomQuote);
+// Charge une citation dès que la page est chargée
+fetchRandomQuote(api_url);
 
-// Call the function when the page loads
-fetchRandomQuote();
+// Ajoute un écouteur d'événement au bouton pour charger une nouvelle citation lors du clic
+newQuoteButton.addEventListener('click', () => {
+    // Affiche un message de chargement pendant la requête
+    quoteElement.innerHTML = "<p>Chargement de la citation...</p>";
+    // Appelle la fonction pour récupérer une nouvelle citation
+    fetchRandomQuote(api_url);
+});

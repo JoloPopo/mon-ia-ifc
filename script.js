@@ -4,7 +4,7 @@ const quoteElement = document.getElementById('quote');
 const newQuoteButton = document.getElementById('btn');
 
 // URL de l'API de citations (ZenQuotes)
-const api_url = "https://zenquotes.io/api/random";
+const api_url = "https://api.allorigins.win/raw?url=https://zenquotes.io/api/random";
 
 // Fonction asynchrone pour récupérer une citation aléatoire depuis l'API
 async function fetchRandomQuote(url) {
